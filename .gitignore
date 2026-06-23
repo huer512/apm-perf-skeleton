@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.env
+
+# Benchmark large output
+06_validation_data/metrics_raw/*
+!06_validation_data/metrics_raw/.gitkeep
+
+# Temporary files
+tmp/
+.cache/
+.DS_Store
+
+# Secrets
+*.pem
+*.key
+.env
+servers.private.yaml
+
+# Model / weights
+models/
+weights/
+*.safetensors
+*.bin
+*.pt
+*.pth
+
+# vLLM source should stay remote
+vllm/
+vllm-workspace/
+
+# 任何目录下除了 README.md 以外的 md 文件都不需要
+*.md
+!README.md
+!**/README.md
