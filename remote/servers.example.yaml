@@ -1,0 +1,24 @@
+# 复制为 servers.private.yaml 后填入真实信息；servers.private.yaml 不会提交到 git。
+
+servers:
+  example-gpu-01:
+    host: 192.0.2.1
+    port: 22
+    user: your_username
+    identity_file: ~/.ssh/id_ed25519
+    # proxy_jump: example-bastion
+    description: 示例 GPU 服务器（请替换为真实说明）
+    default_workspace: /path/to/workspace
+    tags:
+      - gpu
+      - example
+
+  # example-bastion:
+  #   host: jump.example.com
+  #   port: 22
+  #   user: jumpuser
+  #   identity_file: ~/.ssh/id_ed25519
+  #   description: 示例跳板机
+
+defaults:
+  server_id: example-gpu-01

@@ -18,6 +18,7 @@ tmp/
 *.key
 .env
 servers.private.yaml
+remote/servers.private.yaml
 
 # Model / weights
 models/

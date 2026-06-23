@@ -1,0 +1,13 @@
+# 远程实验环境引用。server_id 对应 remote/servers.private.yaml 中的配置项。
+
+server_id: example-gpu-01
+
+repo_path: /path/to/project
+branch: main
+commit: ""
+
+env_notes: |
+  填写运行环境说明，例如 CUDA / ROCm 版本、Python 版本、容器镜像等。
+
+artifact_paths:
+  - /path/to/remote/results/

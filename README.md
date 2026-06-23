@@ -22,12 +22,24 @@
 ├── problem/       # 问题定义、约束、评分规则、提交要求
 ├── hypotheses/    # 优化假设、瓶颈猜想、待验证方向
 ├── experiments/   # 每次实验的完整记录，包括方案、代码、结果、日志、分析
-└── memory/        # 跨实验长期记忆，包括洞察、证据索引、决策日志、当前状态
+├── memory/        # 跨实验长期记忆，包括洞察、证据索引、决策日志、当前状态
+└── remote/        # 远程服务器与 SSH 连接配置（敏感信息不入库）
 ```
 
 ---
 
-## 核心原则
+## 远程环境配置
+
+若实验在远程服务器执行，先配置 SSH 信息：
+
+```bash
+cp remote/servers.example.yaml remote/servers.private.yaml
+# 编辑 servers.private.yaml，填入 host、user、identity_file 等
+```
+
+各实验目录的 `remote_ref.yaml` 通过 `server_id` 引用上述配置，详见 [`remote/README.md`](remote/README.md)。
+
+---
 
 本项目遵循以下原则：
 
@@ -38,7 +50,7 @@
 3. 证据与结论分离
   原始结果、日志和数据放在 `experiments/`，跨实验总结和长期洞察放在 `memory/`。
 4. 本地与远程分离
-  如果被优化项目源码、运行环境或大文件位于远程服务器，本地只保存引用、补丁、配置、结果摘要和分析，不直接保存大体积源码、模型、数据集或构建产物。
+  如果被优化项目源码、运行环境或大文件位于远程服务器，本地只保存引用、补丁、配置、结果摘要和分析，不直接保存大体积源码、模型、数据集或构建产物。SSH 连接信息统一放在 `remote/servers.private.yaml`（已 gitignore），各实验通过 `remote_ref.yaml` 的 `server_id` 引用，不重复保存凭据。
 5. 所有结论必须能追溯
   每个洞察、决策和最终报告中的性能提升结论，都应能追溯到具体实验编号和结果文件。
 
@@ -97,8 +109,9 @@
 - 过大的原始日志
 - 与实验无关的中间文件
 - 远程完整源码副本
+- SSH 私钥、密码及 `remote/servers.private.yaml`
 
-如确实需要保存，应在 `.gitignore` 中排除，或只保留文件路径、校验值、下载方式和说明。
+如确实需要保存，应在 `.gitignore` 中排除，或只保留文件路径、校验值、下载方式和说明。远程连接配置见 `remote/README.md`。
 
 ---
 

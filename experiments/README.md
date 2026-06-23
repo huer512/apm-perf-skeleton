@@ -93,7 +93,7 @@ E002,xxx,H002,running,unknown,待完成,experiments/E002_xxx
 | ----------------- | ------------------------------ |
 | `README.md`       | 说明该实验目录的用途和内容                  |
 | `plan.md`         | 实验计划，说明目的、变量、对照组、成功标准          |
-| `remote_ref.yaml` | 如果实验在远程执行，记录远程路径、分支、commit、环境等 |
+| `remote_ref.yaml` | 如果实验在远程执行，通过 `server_id` 引用 `remote/servers.private.yaml`，并记录远程路径、分支、commit、环境等 |
 | `run_commands.sh` | 实验运行命令，尽量保证可复现                 |
 | `code/`           | 保存补丁、改动说明或代码包                  |
 | `results/`        | 保存原始结果和解析后的指标                  |
@@ -130,7 +130,7 @@ E002,xxx,H002,running,unknown,待完成,experiments/E002_xxx
 * 编译缓存
 * 临时文件
 * 与实验无关的下载包
-* 含密钥的配置文件
+* 含密钥的配置文件（SSH 凭据应放在 `remote/servers.private.yaml`，不要写入实验目录）
 
 如必须保留，应使用压缩包、外部存储或远程路径引用，并在 `.gitignore` 中排除不应提交的内容。
 

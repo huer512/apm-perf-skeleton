@@ -42,7 +42,7 @@
 | 文件或目录             | 说明                        |
 | ----------------- | ------------------------- |
 | `plan.md`         | 实验计划，运行前编写                |
-| `remote_ref.yaml` | 远程环境、代码位置、commit、分支、产物路径等 |
+| `remote_ref.yaml` | 通过 `server_id` 引用 `remote/servers.private.yaml`，并记录代码位置、commit、分支、产物路径等 |
 | `run_commands.sh` | 实验运行命令                    |
 | `code/`           | 代码补丁、改动说明、代码包             |
 | `results/`        | 原始结果、解析结果、指标对比            |
@@ -183,4 +183,4 @@ yes / no / pending
 * 不要只保存截图，尽量保存机器可读结果。
 * 不要只写结论，必须保留支持结论的证据。
 * 无效实验也要记录，避免后续重复踩坑。
-* 如果实验依赖远程服务器，必须记录远程路径、分支和 commit。
+* 如果实验依赖远程服务器，必须在 `remote/servers.private.yaml` 中配置 SSH 信息，并在 `remote_ref.yaml` 中填写 `server_id`、远程路径、分支和 commit。
