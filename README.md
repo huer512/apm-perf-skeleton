@@ -70,14 +70,17 @@
 
 ## 编号约定
 
+**000 编号保留为模板，不参与实际任务记录。**  
+所有任务相关的存储从 **001** 开始编号。例如：第一个实验是 `E001_baseline`，第一个假设是 `H001_xxx.md`。  
+模板文件（如 `H000_template/`、`E000_template/`）只作为格式参考，不要在模板中写入实际任务内容。
 
-| 类型  | 前缀     | 示例                             |
-| --- | ------ | ------------------------------ |
-| 假设  | Hxxx   | H001_memory_bottleneck         |
-| 实验  | Exxx   | E003_cache_policy_ab_test      |
-| 证据  | EVDxxx | EVD007                         |
-| 洞察  | Ixxx   | I004_decode_is_bandwidth_bound |
-| 决策  | Dxxx   | D002_drop_static_optimization  |
+| 类型  | 前缀     | 示例                             | 起始编号 |
+| --- | ------ | ------------------------------ | ---- |
+| 假设  | Hxxx   | H001_memory_bottleneck         | H001 |
+| 实验  | Exxx   | E003_cache_policy_ab_test      | E001 |
+| 证据  | EVDxxx | EVD007                         | EVD001 |
+| 洞察  | Ixxx   | I004_decode_is_bandwidth_bound | I001 |
+| 决策  | Dxxx   | D002_drop_static_optimization  | D001 |
 
 
 ---

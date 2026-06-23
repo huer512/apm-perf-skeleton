@@ -15,13 +15,17 @@
 ```text
 hypotheses/
 ├── README.md
-├── H000_template.md
+├── H000_template/          # 模板，不参与实际任务，不要修改
+│   └── README.md
 ├── H001_xxx.md
 ├── H002_xxx.md
 └── H003_xxx.md
 ```
 
 每个 `Hxxx` 文件代表一个独立假设。
+
+`H000_template/` 是假设文件模板目录，只作为格式参考，不要在其中写入实际任务内容。  
+实际假设从 `H001` 开始编号。
 
 ---
 

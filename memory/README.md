@@ -139,7 +139,7 @@ yes / no / pending
 
 | 证据编号 | 来源实验 | 支持假设 | 关键结果 | 结果位置 | 可信度 |
 |---|---|---|---|---|---|
-| EVD001 | E000 | H001 | 建立 baseline | experiments/E000_baseline/results/ | 高 |
+| EVD001 | E001 | H001 | 建立 baseline | experiments/E001_baseline/results/ | 高 |
 ```
 
 ---

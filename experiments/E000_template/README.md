@@ -1,4 +1,9 @@
-# Experiment Directory
+# Experiment Directory Template
+
+> **本目录为实验模板（E000），不参与实际任务记录，请勿修改。**  
+> 创建新实验时，复制本目录结构，按 `E001_xxx`、`E002_xxx` 命名，从 **E001** 开始编号。
+
+---
 
 本目录用于保存一次独立实验的完整材料。
 

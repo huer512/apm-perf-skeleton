@@ -15,7 +15,7 @@
 experiments/
 ├── README.md
 ├── index.csv
-├── E000_baseline/
+├── E000_template/          # 模板目录，不参与实际任务，不要修改
 │   ├── README.md
 │   ├── plan.md
 │   ├── remote_ref.yaml
@@ -25,17 +25,13 @@ experiments/
 │   ├── logs/
 │   ├── analysis.md
 │   └── conclusion.md
-└── E001_xxx/
-    ├── README.md
-    ├── plan.md
-    ├── remote_ref.yaml
-    ├── run_commands.sh
-    ├── code/
-    ├── results/
-    ├── logs/
-    ├── analysis.md
-    └── conclusion.md
+├── E001_baseline/          # 第一个实验：建立基线
+│   └── ...
+└── E002_xxx/
+    └── ...
 ```
+
+创建新实验时，复制 `E000_template/` 的结构，按 `E001_xxx`、`E002_xxx` 命名。
 
 ---
 
@@ -50,14 +46,14 @@ E编号_简短实验名称
 示例：
 
 ```text
-E000_baseline
-E001_cache_policy_ab_test
-E002_kernel_fusion_trial
-E003_scheduler_fast_path
-E004_memory_pool_config
+E000_template          # 模板，不参与实际任务
+E001_baseline          # 第一个实验
+E002_cache_policy_ab_test
+E003_kernel_fusion_trial
+E004_scheduler_fast_path
 ```
 
-编号一旦创建，不建议复用。
+`E000` 保留为实验目录模板，实际任务从 `E001` 开始编号。编号一旦创建，不允许重复使用。
 
 ---
 
@@ -69,8 +65,8 @@ E004_memory_pool_config
 
 ```csv
 实验编号,实验名称,关联假设,状态,是否有效,关键结果,位置
-E000,baseline,H001,done,yes,建立基线,experiments/E000_baseline
-E001,xxx,H002,running,unknown,待完成,experiments/E001_xxx
+E001,baseline,H001,done,yes,建立基线,experiments/E001_baseline
+E002,xxx,H002,running,unknown,待完成,experiments/E002_xxx
 ```
 
 ---
