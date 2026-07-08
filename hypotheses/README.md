@@ -46,7 +46,7 @@ hypotheses/
 
 ## 命名规范
 
-假设文件命名建议使用：
+假设文件命名必须使用（不符合该模式的文件不会被 scripts/validate.py 识别）：
 
 ```text
 H编号_简短英文或拼音描述.md
@@ -62,7 +62,7 @@ H004_scheduler_overhead.md
 H005_io_bottleneck.md
 ```
 
-编号一旦分配，不建议复用。
+编号一旦分配，禁止复用。
 
 ---
 
@@ -83,53 +83,24 @@ H005_io_bottleneck.md
 
 ---
 
+## 状态联动规则
+
+实验结束后，按 conclusion.md 的现有字段联动更新假设状态，不引入新的判定枚举：
+
+| conclusion.md 的"是否支持关联假设" | 假设侧动作 |
+| --- | --- |
+| `supported` | H → `supported`；多个实验一致支持且路线被采纳（记 Dxxx）后 → `merged` |
+| `rejected` | H → `rejected`，"反驳证据"必须至少引用一条 EVDxxx；无正式证据但明确放弃 → `deprecated` 并记 Dxxx |
+| `inconclusive` | H 保持 `testing`，在"后续动作"写明派生实验或修订可证伪判据 |
+| （实验 failed / invalid，未产生结论） | H 回 `planned`（可重试）或保持 `testing`；连续多次失败 → `paused` 并在 memory/current_state.md 记录阻塞原因 |
+
+---
+
 ## 假设文件模板
 
-每个假设必须使用以下格式：
+假设文件格式以 [`H000_template/README.md`](H000_template/README.md) 为唯一模板来源，此处不再重复，避免两处不一致。
 
-```md
-# Hxxx 假设名称
-
-## 状态
-proposed / planned / testing / supported / rejected / paused / merged / deprecated
-
-## 假设
-用一句话说明核心猜想。
-
-## 背景依据
-说明为什么提出这个假设。  
-可以引用问题规则、领域知识、已有实验、日志观察或经验判断。
-
-## 可能影响的指标
-- 指标 1
-- 指标 2
-- 指标 3
-
-## 预期收益
-说明如果假设成立，理论上会带来什么改进。
-
-## 潜在风险
-说明该方向可能带来的副作用，例如正确性风险、稳定性风险、兼容性风险、维护成本等。
-
-## 验证方法
-说明准备用哪些实验验证该假设。
-
-## 关联实验
-- Exxx
-- Exxx
-
-## 支持证据
-- EVDxxx
-
-## 反驳证据
-- EVDxxx
-
-## 当前结论
-待验证 / 初步支持 / 初步反驳 / 已确认 / 已放弃
-
-## 后续动作
-说明下一步应该做什么。
-```
+结论不单独维护字段，由状态推导（映射关系见模板内注释）。
 
 ---
 
@@ -145,7 +116,6 @@ proposed / planned / testing / supported / rejected / paused / merged / deprecat
 * 关联实验
 * 支持证据
 * 反驳证据
-* 当前结论
 * 后续动作
 
 本目录的目标是避免无目的试错，让每次实验都服务于明确的优化判断。

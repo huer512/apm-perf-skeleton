@@ -4,10 +4,6 @@ __pycache__/
 .venv/
 .env
 
-# Benchmark large output
-06_validation_data/metrics_raw/*
-!06_validation_data/metrics_raw/.gitkeep
-
 # Temporary files
 tmp/
 .cache/
@@ -16,23 +12,16 @@ tmp/
 # Secrets
 *.pem
 *.key
-.env
 servers.private.yaml
 remote/servers.private.yaml
 
-# Model / weights
-models/
-weights/
+# 大文件:模型权重、数据集、构建产物等不入库(按需增删)。
+# 注意:研究文档(Hxxx、plan/analysis/conclusion、memory/ 等 md 文件)必须入库,
+# 不要在本文件中添加任何忽略 *.md 的规则。
 *.safetensors
-*.bin
 *.pt
 *.pth
-
-# vLLM source should stay remote
-vllm/
-vllm-workspace/
-
-# 任何目录下除了 README.md 以外的 md 文件都不需要
-*.md
-!README.md
-!**/README.md
+*.onnx
+*.tar
+*.tar.gz
+*.zip

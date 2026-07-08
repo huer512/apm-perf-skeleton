@@ -97,6 +97,24 @@ artifact_paths:
 
 ---
 
+## 结果回传
+
+远程实验结束后，必须把结果与日志回传到本地实验目录，证据链才算闭合：
+
+```bash
+# 结合 servers.private.yaml 的连接参数与 remote_ref.yaml 的 artifact_paths
+rsync -av <user>@<host>:<artifact_path>/ experiments/Exxx/results/
+rsync -av <user>@<host>:<remote_log_path>/ experiments/Exxx/logs/
+```
+
+回传要求：
+
+1. 回传后核对文件清单与大小，确认完整。
+2. 拉取命令与时间记入 `logs/`（可写在 `run_commands.sh` 的回传段，输出 tee 到 logs/）。
+3. `remote_ref.yaml` 中 `artifact_paths` 列出的每个远程路径，都应能在本地 `results/` 或 `logs/` 找到对应产物，或在 analysis.md 中写明未回传原因（如超大文件只留校验值与远程路径）。
+
+---
+
 ## 与 memory/ 的关系
 
 `memory/global_context.md` 的「外部依赖」一节可引用 `server_id` 列表，说明项目长期依赖哪些远程环境，但**不要把完整 SSH 凭据写进 memory**。

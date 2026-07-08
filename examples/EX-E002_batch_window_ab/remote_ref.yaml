@@ -1,0 +1,13 @@
+# 本实验在本地执行,使用 local 哨兵值。
+server_id: local
+
+repo_path: /home/dev/order-service
+branch: perf-batch-window
+commit: 9f31c2e
+
+env_notes: |
+  Ubuntu 22.04, Python 3.11.8, PostgreSQL 14.11(本机),连接池上限 20。
+  负载生成器 loadgen 0.9.2,录制文件 orders-replay-50k.bin(md5 已记录在 logs/env_snapshot)。
+
+artifact_paths:
+  - results/

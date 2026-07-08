@@ -31,7 +31,8 @@ memory/
 ├── current_state.md
 ├── insight_bank.md
 ├── evidence_index.md
-└── decision_log.md
+├── decision_log.md
+└── gotchas.md
 ```
 
 ---
@@ -44,8 +45,9 @@ memory/
 | `global_context.md` | 项目长期背景、目标系统、核心指标、优化边界   |
 | `current_state.md`  | 当前阶段、当前最佳实验、当前风险、下一步计划  |
 | `insight_bank.md`   | 已沉淀的跨实验洞察               |
-| `evidence_index.md` | 证据索引，记录哪些实验支持哪些结论       |
+| `evidence_index.md` | 证据索引，记录哪些实验支持或反驳哪些结论    |
 | `decision_log.md`   | 重大决策记录，包括采用、放弃、回滚某路线的原因 |
+| `gotchas.md`        | 已知坑：症状、适用范围、规避动作，实验前必读  |
 
 
 ---
@@ -123,6 +125,11 @@ Exxx
 
 ### 可信度
 高 / 中 / 低
+（不得高于所引用证据的最高 strength：confirmed→高，strong→中，weak→低）
+
+### 来源版本与核验
+- 来源环境/版本：（该洞察在什么环境坐标下成立）
+- 最近核验日期：YYYY-MM-DD
 
 ### 影响
 说明这个洞察如何影响后续优化方向。
@@ -135,13 +142,22 @@ yes / no / pending
 
 ## evidence_index.md 格式
 
+表头为英文机读列名，不要改动：
+
 ```md
 # 证据索引
 
-| 证据编号 | 来源实验 | 支持假设 | 关键结果 | 结果位置 | 可信度 |
-|---|---|---|---|---|---|
-| EVD001 | E001 | H001 | 建立 baseline | experiments/E001_baseline/results/ | 高 |
+| evd_id | exp_id | hypothesis | relation | strength | key_result | location | command |
+|---|---|---|---|---|---|---|---|
+| EVD001 | E001 | none | supports | confirmed | 建立基线 p99=118ms | experiments/E001_baseline/results/ | bash run_commands.sh |
 ```
+
+列取值约定：
+
+- `hypothesis`：关联假设编号；基线/探索性证据填 `none`
+- `relation`：`supports` / `refutes`（反驳性证据同样必须登记，H 文件的"反驳证据"字段以此为数据来源）
+- `strength`：`confirmed`（重复测量且超噪声阈值）/ `strong`（单来源但测量完整）/ `weak`（间接证据或接近噪声）
+- `command`：产生该证据的命令（provenance），保证可复核
 
 ---
 
@@ -182,15 +198,7 @@ accepted / rejected / superseded / deprecated
 
 ## 维护要求
 
-每完成一次有效实验，应考虑更新：
-
-- `current_state.md`
-- `evidence_index.md`
-- `insight_bank.md`
-
-每做出一次重要路线选择，应更新：
-
-- `decision_log.md`
+更新时机以 `AGENTS.md` 的收尾清单为唯一权威来源。
 
 如果某个洞察被新实验推翻，应在 `insight_bank.md` 中保留原记录，并标记为：
 

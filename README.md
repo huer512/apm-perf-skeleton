@@ -3,6 +3,8 @@
 本项目用于管理一个以性能优化为目标的工程研究流程。  
 它不直接等同于被优化系统的源码仓库，而是作为本地研究中枢，用于组织问题定义、优化假设、实验记录、结果分析、长期记忆和最终报告材料。
 
+**AI Agent（或人工执行者）开始工作前，必须先阅读 [`AGENTS.md`](AGENTS.md)** —— 它是进场顺序、收尾清单与红线的唯一权威来源。
+
 本项目适用于以下场景：
 
 - 系统性能优化
@@ -19,11 +21,15 @@
 
 ```text
 .
+├── AGENTS.md      # Agent 执行契约：进场顺序、收尾清单、硬门槛、红线（唯一权威来源）
 ├── problem/       # 问题定义、约束、评分规则、提交要求
 ├── hypotheses/    # 优化假设、瓶颈猜想、待验证方向
 ├── experiments/   # 每次实验的完整记录，包括方案、代码、结果、日志、分析
-├── memory/        # 跨实验长期记忆，包括洞察、证据索引、决策日志、当前状态
-└── remote/        # 远程服务器与 SSH 连接配置（敏感信息不入库）
+├── memory/        # 跨实验长期记忆，包括洞察、证据索引、决策日志、已知坑、当前状态
+├── remote/        # 远程服务器与 SSH 连接配置（敏感信息不入库）
+├── report/        # 最终方案与最终报告（终止条件白名单见其 README）
+├── examples/      # 填写完成的全链路示例（格式与粒度示范，不占正式编号）
+└── scripts/       # 轻量校验工具（stdlib-only；无脚本时流程可全手工执行）
 ```
 
 ---
@@ -61,21 +67,23 @@ cp remote/servers.example.yaml remote/servers.private.yaml
 一次完整优化流程建议如下：
 
 ```text
-阅读 problem/
+阅读 problem/（未初始化 → 先执行 AGENTS.md 的第 0 步 intake）
         ↓
-提出 hypotheses/Hxxx
+建立并冻结基线实验（plan.md 填写"基线契约"）
         ↓
-创建 experiments/Exxx
+提出 hypotheses/Hxxx（先完成查重与先验检索）
         ↓
-执行实验并保存代码、结果和日志
+创建 experiments/Exxx 并完成 plan.md
+        ↓
+执行实验并保存代码、结果和日志（远程实验回传产物）
         ↓
 编写 analysis.md 和 conclusion.md
         ↓
-更新 memory/evidence_index.md
+登记 EVD 到 memory/evidence_index.md，并回写 Hxxx 状态（联动规则见 hypotheses/README.md）
         ↓
-更新 memory/insight_bank.md 或 memory/decision_log.md
+更新 experiments/index.csv 与 memory/current_state.md（完整收尾清单见 AGENTS.md）
         ↓
-决定继续优化、回滚或进入最终方案
+决定继续优化、修订假设，或命中终止条件后进入 report/ 最终报告
 ```
 
 ---
@@ -93,6 +101,9 @@ cp remote/servers.example.yaml remote/servers.private.yaml
 | 证据  | EVDxxx | EVD007                         | EVD001 |
 | 洞察  | Ixxx   | I004_decode_is_bandwidth_bound | I001 |
 | 决策  | Dxxx   | D002_drop_static_optimization  | D001 |
+| 规则  | Rxxx   | R003_no_dataset_change         | R001 |
+
+本表是编号约定的唯一定义处。`examples/` 内使用 `EX-` 前缀，不占用上述编号。
 
 
 ---
@@ -117,13 +128,8 @@ cp remote/servers.example.yaml remote/servers.private.yaml
 
 ## 推荐维护习惯
 
-每完成一次实验，至少更新以下文件：
+每次会话收尾动作（回写假设、更新索引、登记证据、更新 memory、校验、提交）以 [`AGENTS.md`](AGENTS.md) 的收尾清单为唯一权威来源，此处不再重复罗列。
 
-- `experiments/index.csv`
-- 对应实验目录下的 `analysis.md`
-- 对应实验目录下的 `conclusion.md`
-- `memory/evidence_index.md`
-- 必要时更新 `memory/insight_bank.md`
-- 必要时更新 `memory/decision_log.md`
+研究产物（假设、计划、分析、结论、memory）必须提交入库：每轮收尾后 `git status` 中不应残留未跟踪的 md/csv 研究文档，否则证据链在版本库层面会丢失。建议每个实验收尾至少一次提交，commit message 引用编号（如 `E003: cache policy rejected (H002)`），让 git log 成为免费的审计索引。
 
 本项目的目标不是保存所有东西，而是让每一次优化都能被复现、被解释、被比较、被继承。

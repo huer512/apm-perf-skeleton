@@ -1,13 +1,14 @@
 # 远程实验环境引用。server_id 对应 remote/servers.private.yaml 中的配置项。
+# 本地实验:server_id 填写哨兵值 local,repo_path 填本地路径,其余远程专用字段可删除。
 
 server_id: example-gpu-01
 
 repo_path: /path/to/project
 branch: main
-commit: ""
+commit: ""   # 实验执行前必须填写实际 commit,否则结果不可追溯
 
 env_notes: |
-  填写运行环境说明，例如 CUDA / ROCm 版本、Python 版本、容器镜像等。
+  填写运行环境说明,例如 CUDA / ROCm 版本、Python 版本、容器镜像等。
 
 artifact_paths:
   - /path/to/remote/results/

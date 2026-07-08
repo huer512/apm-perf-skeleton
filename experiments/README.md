@@ -59,15 +59,24 @@ E004_scheduler_fast_path
 
 ## index.csv
 
-`index.csv` 用于总览所有实验。
+`index.csv` 用于总览所有实验，是唯一的机读索引。
 
-必须使用以下格式：
+必须使用以下格式（表头为英文机读列名，不要改动）：
 
 ```csv
-实验编号,实验名称,关联假设,状态,是否有效,关键结果,位置
-E001,baseline,H001,done,yes,建立基线,experiments/E001_baseline
-E002,xxx,H002,running,unknown,待完成,experiments/E002_xxx
+exp_id,exp_name,hypotheses,status,valid,key_result,path
+E001,baseline,none,done,yes,建立基线,experiments/E001_baseline
+E002,cache_policy_ab_test,H001;H002,running,unknown,待完成,experiments/E002_cache_policy_ab_test
 ```
+
+列取值约定：
+
+| 列 | 取值 |
+| --- | --- |
+| `hypotheses` | 关联假设编号，多个用分号分隔；基线或探索性实验填 `none`，不要编造假设 |
+| `status` | 见下方实验状态表 |
+| `valid` | `yes` / `no` / `partial` / `invalid`，与 `conclusion.md` 的"是否有效"一致；实验未完成时填 `unknown` |
+| `key_result` | 一句话自由文本 |
 
 ---
 
@@ -117,6 +126,27 @@ E002,xxx,H002,running,unknown,待完成,experiments/E002_xxx
 8. 结论能追溯到具体指标和日志。
 9. 无效实验也要记录原因。
 10. 重要实验应能被重复执行。
+11. 远程实验结束后必须将结果与日志回传到本地 `results/` 与 `logs/`（见 `remote/README.md` 的"结果回传"）。
+
+---
+
+## 证据登记（EVD）
+
+conclusion.md 完成时，必须为每条关键测量创建 EVD 并登记到 `memory/evidence_index.md`（格式见 memory/README.md）：
+
+* 一次实验可登记多条 EVD；支持性与反驳性证据都要登记。
+* EVD 编号从 EVD001 起全局递增，不复用。
+* 冒烟/流程验证运行与未重复的单次测量，禁止登记为 EVD（见 AGENTS.md 红线）。
+
+---
+
+## 结论验收规则
+
+analysis.md 与 conclusion.md 的合格标准（本节为唯一定义处，模板内仅引用）：
+
+* 必须包含：基线数字、当前数字、变化幅度、EVDxxx 引用、结论适用范围。
+* 禁止：只写"有提升 / 已优化 / 应该是"而不给数字与证据编号；把 microbenchmark 结果表述为端到端结论。
+* 失败或无效实验同样要完成两份文档，写明失败原因与日志位置。
 
 ---
 
@@ -138,13 +168,6 @@ E002,xxx,H002,running,unknown,待完成,experiments/E002_xxx
 
 ## 维护要求
 
-每创建一个实验目录，都应同步更新：
-
-* `index.csv`
-* 关联假设文件
-* 实验目录中的 `README.md`
-* 实验完成后的 `analysis.md`
-* 实验完成后的 `conclusion.md`
-* `memory/evidence_index.md`
+实验创建与收尾需要同步更新的文件，以 `AGENTS.md` 的收尾清单为唯一权威来源，此处不再重复罗列。
 
 本目录的目标是让每个性能结论都有证据来源。
