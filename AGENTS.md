@@ -19,7 +19,7 @@
 
 1. 回写本轮涉及的 Hxxx:状态、关联实验、支持/反驳证据、后续动作(联动规则见 `hypotheses/README.md`)。
 2. 更新 `experiments/index.csv`(status、valid、key_result)。
-3. conclusion.md 已完成的实验:在 `memory/evidence_index.md` 登记 EVD(登记规则见 `experiments/README.md`)。
+3. conclusion.md 已完成的实验:先做结论审计(`scripts/codex_audit.sh <实验目录>` → 意见整理进 audit.md,判定通过),再在 `memory/evidence_index.md` 登记 EVD(登记规则见 `experiments/README.md`)。
 4. 必要时更新 `memory/insight_bank.md`、`memory/decision_log.md`、`memory/gotchas.md`。
 5. 更新 `memory/current_state.md`(阶段、最佳实验、风险、下一步动作)。
 6. 运行 `python3 scripts/validate.py` 并清零报错;无法运行脚本时,按脚本文件头部的手工核对清单逐项检查。
@@ -34,8 +34,10 @@
 | 硬门槛 | 降级路径 |
 | --- | --- |
 | plan.md 未完成,禁止执行实验 | 信息不足时在 plan.md 中显式写下假定值并标"待确认" |
+| review.md 判定非 approved / approved-with-changes,禁止执行实验(默认用 codex 评审:`scripts/codex_review.sh <实验目录>`,adopted 意见须先回写 plan.md) | codex 与替代评审(其它独立模型/人工)均不可用 → review.md 判定填 waived,写明原因与风险后可执行 |
 | analysis.md 未完成,禁止写 conclusion.md | 实验失败无法分析 → analysis.md 记录失败原因与日志位置,conclusion.md 的"是否有效"填 invalid |
 | conclusion.md 未完成,禁止改写 Hxxx 状态 | 实验中止 → H 状态回 planned,并在"后续动作"记录原因 |
+| audit.md 判定非 approved / approved-with-changes,禁止登记 EVD、禁止回写 Hxxx 状态、禁止把实验标为 analyzed(结论审计:`scripts/codex_audit.sh <实验目录>`,从合规性/有效性/复现性三维度审查) | codex 与替代审计(其它独立模型/人工)均不可用 → audit.md 判定填 waived,写明原因与风险后放行 |
 | H 状态改为 rejected,必须引用至少一条反驳 EVD | 无正式证据但明确放弃该方向 → 状态用 deprecated,并在 memory/decision_log.md 记 Dxxx 说明理由 |
 
 ---

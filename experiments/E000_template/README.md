@@ -29,13 +29,15 @@
 .
 ├── README.md
 ├── plan.md
+├── review.md
 ├── remote_ref.yaml
 ├── run_commands.sh
 ├── code/
 ├── results/
 ├── logs/
 ├── analysis.md
-└── conclusion.md
+├── conclusion.md
+└── audit.md
 ```
 
 ---
@@ -47,6 +49,7 @@
 | 文件或目录             | 说明                        |
 | ----------------- | ------------------------- |
 | `plan.md`         | 实验计划,运行前编写                |
+| `review.md`       | 实验计划评审记录:codex 意见的逐条处理与最终判定,判定通过才可执行(见 AGENTS.md 硬门槛) |
 | `remote_ref.yaml` | 远程实验通过 `server_id` 引用 `remote/servers.private.yaml`,并记录代码位置、commit、分支、产物路径;本地实验 `server_id` 填 `local` |
 | `run_commands.sh` | 实验运行命令,含环境快照与日志落盘骨架       |
 | `code/`           | 代码补丁、改动说明、代码包             |
@@ -54,6 +57,7 @@
 | `logs/`           | 服务日志、压测日志、构建日志、错误日志       |
 | `analysis.md`     | 结果分析,运行后编写                |
 | `conclusion.md`   | 实验结论,分析后编写                |
+| `audit.md`        | 结论审计记录(合规性/有效性/复现性),判定通过才可登记 EVD 与回写假设(见 AGENTS.md 硬门槛) |
 
 ---
 
@@ -66,14 +70,18 @@
 2. 编写 plan.md
 3. 填写 remote_ref.yaml
 4. 编写或复制 run_commands.sh
-5. 执行实验
-6. 保存 code/
-7. 保存 results/
-8. 保存 logs/
-9. 编写 analysis.md
-10. 编写 conclusion.md
-11. 更新 experiments/index.csv
-12. 更新 memory/
+5. 评审:运行 scripts/codex_review.sh <实验目录>,把意见整理进 review.md,
+   adopted 意见回写 plan.md,判定 approved / approved-with-changes 后才可继续
+6. 执行实验
+7. 保存 code/
+8. 保存 results/
+9. 保存 logs/
+10. 编写 analysis.md
+11. 编写 conclusion.md
+12. 审计:运行 scripts/codex_audit.sh <实验目录>,把意见整理进 audit.md
+    (合规性/有效性/复现性),判定通过后才可登记 EVD 与回写假设状态
+13. 更新 experiments/index.csv
+14. 更新 memory/
 ```
 
 ---

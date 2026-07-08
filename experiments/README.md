@@ -18,13 +18,15 @@ experiments/
 ├── E000_template/          # 模板目录，不参与实际任务，不要修改
 │   ├── README.md
 │   ├── plan.md
+│   ├── review.md
 │   ├── remote_ref.yaml
 │   ├── run_commands.sh
 │   ├── code/
 │   ├── results/
 │   ├── logs/
 │   ├── analysis.md
-│   └── conclusion.md
+│   ├── conclusion.md
+│   └── audit.md
 ├── E001_baseline/          # 第一个实验：建立基线
 │   └── ...
 └── E002_xxx/
@@ -102,6 +104,7 @@ E002,cache_policy_ab_test,H001;H002,running,unknown,待完成,experiments/E002_c
 | ----------------- | ------------------------------ |
 | `README.md`       | 说明该实验目录的用途和内容                  |
 | `plan.md`         | 实验计划，说明目的、变量、对照组、成功标准          |
+| `review.md`       | 实验计划评审记录（codex 意见处理与判定），执行前必须判定通过 |
 | `remote_ref.yaml` | 如果实验在远程执行，通过 `server_id` 引用 `remote/servers.private.yaml`，并记录远程路径、分支、commit、环境等 |
 | `run_commands.sh` | 实验运行命令，尽量保证可复现                 |
 | `code/`           | 保存补丁、改动说明或代码包                  |
@@ -109,6 +112,7 @@ E002,cache_policy_ab_test,H001;H002,running,unknown,待完成,experiments/E002_c
 | `logs/`           | 保存运行日志、构建日志、错误日志               |
 | `analysis.md`     | 对结果进行分析                        |
 | `conclusion.md`   | 给出实验结论和后续动作                    |
+| `audit.md`        | 结论审计记录（合规性/有效性/复现性），登记 EVD 前必须判定通过 |
 
 ---
 
@@ -134,6 +138,7 @@ E002,cache_policy_ab_test,H001;H002,running,unknown,待完成,experiments/E002_c
 
 conclusion.md 完成时，必须为每条关键测量创建 EVD 并登记到 `memory/evidence_index.md`（格式见 memory/README.md）：
 
+* 登记前实验必须通过结论审计：audit.md 判定为 approved / approved-with-changes / waived（见 AGENTS.md 硬门槛）。
 * 一次实验可登记多条 EVD；支持性与反驳性证据都要登记。
 * EVD 编号从 EVD001 起全局递增，不复用。
 * 冒烟/流程验证运行与未重复的单次测量，禁止登记为 EVD（见 AGENTS.md 红线）。

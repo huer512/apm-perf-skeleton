@@ -75,9 +75,13 @@ cp remote/servers.example.yaml remote/servers.private.yaml
         ↓
 创建 experiments/Exxx 并完成 plan.md
         ↓
+codex 评审实验计划（scripts/codex_review.sh，意见整理进 review.md，判定通过才可执行）
+        ↓
 执行实验并保存代码、结果和日志（远程实验回传产物）
         ↓
 编写 analysis.md 和 conclusion.md
+        ↓
+codex 审计结论（合规性/有效性/复现性，scripts/codex_audit.sh → audit.md 判定通过）
         ↓
 登记 EVD 到 memory/evidence_index.md，并回写 Hxxx 状态（联动规则见 hypotheses/README.md）
         ↓

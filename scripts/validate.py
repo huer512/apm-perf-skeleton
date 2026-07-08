@@ -7,15 +7,23 @@
 
 1. 编号唯一:H / E / EVD / I / D / R 各自无重复编号。
 2. 交叉引用存在:H 引用的 Exxx 目录存在;experiments/index.csv 与 E 目录一一对应;
-   H 与 conclusion.md 引用的 EVD 在 memory/evidence_index.md 已登记;实验目录含 plan.md。
-3. 枚举取值合法:H 状态、index.csv 的 status/valid、evidence_index 的 relation/strength。
+   H 与 conclusion.md 引用的 EVD 在 memory/evidence_index.md 已登记;实验目录含 plan.md;
+   执行过的实验(status 非 planned)必须有判定通过的 review.md(评审门,见 AGENTS.md);
+   已分析的实验(status 为 analyzed/archived)与登记过 EVD 的实验必须有判定通过的
+   audit.md(结论审计门,见 AGENTS.md)。
+3. 枚举取值合法:H 状态、index.csv 的 status/valid、evidence_index 的 relation/strength、
+   review.md 的评审判定、audit.md 的审计判定。
 
 无法运行本脚本时的等价手工核对清单:
   a. ls hypotheses/ experiments/,确认 H/E 编号无重复;
   b. grep -oE 'EVD[0-9]{3}' memory/evidence_index.md | sort | uniq -d 应无输出;
   c. 逐个打开 Hxxx,确认"关联实验"中的 Exxx 目录存在、引用的 EVD 已登记;
   d. 逐行核对 experiments/index.csv 与 experiments/E* 目录一一对应,每个实验目录有 plan.md;
-  e. 核对 H 状态、index.csv 的 status/valid 取值在对应 README 的约定集合内。
+  e. 核对 H 状态、index.csv 的 status/valid 取值在对应 README 的约定集合内;
+  f. 确认 status 非 planned 的实验目录有 review.md,且评审判定为
+     approved / approved-with-changes / waived;
+  g. 确认 status 为 analyzed/archived 的实验与 evidence_index 中出现过的实验
+     有 audit.md,且审计判定为 approved / approved-with-changes / waived。
 
 跳过:examples/、E000/H000 模板、含 xxx 的占位引用(如 Exxx、EVDxxx)。
 退出码:有 ERROR 返回 1,否则 0(WARN 不影响退出码)。
@@ -32,6 +40,9 @@ E_STATUS = {"planned", "running", "done", "failed", "invalid", "analyzed", "arch
 E_VALID = {"yes", "no", "partial", "invalid", "unknown"}
 EVD_RELATION = {"supports", "refutes"}
 EVD_STRENGTH = {"confirmed", "strong", "weak"}
+REVIEW_VERDICT = {"approved", "approved-with-changes", "rework", "waived"}
+PASSING_VERDICT = {"approved", "approved-with-changes", "waived"}
+EXECUTED_STATUS = {"running", "done", "failed", "invalid", "analyzed", "archived"}
 INDEX_HEADER = ["exp_id", "exp_name", "hypotheses", "status", "valid", "key_result", "path"]
 
 errors: list[str] = []
@@ -95,6 +106,16 @@ def main() -> int:
         if not (d / "plan.md").exists():
             err(f"实验目录缺少 plan.md: {d.relative_to(root)}")
 
+    # 结论审计判定(供 EVD 登记与完成态检查使用)
+    audit_verdicts: dict[str, str] = {}
+    for d in e_dirs:
+        af = d / "audit.md"
+        if af.exists():
+            v = section_value(af.read_text(encoding="utf-8"), "审计判定")
+            audit_verdicts[d.name[:4]] = v
+            if v and v not in REVIEW_VERDICT:
+                err(f"{af.relative_to(root)}: 审计判定取值非法: {v!r}(合法: {sorted(REVIEW_VERDICT)})")
+
     # ---- evidence_index ----
     evd_ids: list[str] = []
     evd_rows = []
@@ -117,6 +138,9 @@ def main() -> int:
         evd_id, exp_id, hyp, relation, strength = cells[0], cells[1], cells[2], cells[3], cells[4]
         if exp_id not in e_id_set:
             err(f"{evd_id}: 来源实验 {exp_id} 不存在于 experiments/")
+        elif audit_verdicts.get(exp_id) not in PASSING_VERDICT:
+            err(f"{evd_id}: 来源实验 {exp_id} 尚未通过结论审计(audit.md 判定须为 "
+                f"approved / approved-with-changes / waived),不得登记证据")
         if hyp != "none" and hyp not in h_id_set:
             err(f"{evd_id}: 关联假设 {hyp} 不存在于 hypotheses/")
         if relation not in EVD_RELATION:
@@ -190,6 +214,24 @@ def main() -> int:
     for d in e_dirs:
         concl = d / "conclusion.md"
         st = status_by_id.get(d.name[:4], "")
+        executed = st in EXECUTED_STATUS
+        review = d / "review.md"
+        if review.exists():
+            verdict = section_value(review.read_text(encoding="utf-8"), "评审判定")
+            if verdict and verdict not in REVIEW_VERDICT:
+                err(f"{review.relative_to(root)}: 评审判定取值非法: {verdict!r}(合法: {sorted(REVIEW_VERDICT)})")
+            if executed and verdict not in PASSING_VERDICT:
+                err(f"{d.name}: index.csv 状态为 {st} 但评审判定为 {verdict or '缺失'}"
+                    f"(执行前须 approved / approved-with-changes / waived,见 AGENTS.md)")
+        elif executed:
+            err(f"{d.name}: index.csv 状态为 {st} 但缺少 review.md(执行前必须评审,见 AGENTS.md)")
+        if st in {"analyzed", "archived"}:
+            av = audit_verdicts.get(d.name[:4])
+            if d.name[:4] not in audit_verdicts:
+                err(f"{d.name}: index.csv 状态为 {st} 但缺少 audit.md(结论生效前必须审计,见 AGENTS.md)")
+            elif av not in PASSING_VERDICT:
+                err(f"{d.name}: index.csv 状态为 {st} 但审计判定为 {av or '缺失'}"
+                    f"(须 approved / approved-with-changes / waived,见 AGENTS.md)")
         if concl.exists():
             for evd_ref in set(re.findall(r"\bEVD\d{3}\b", concl.read_text(encoding="utf-8"))):
                 if evd_ref not in evd_id_set:
