@@ -3,7 +3,7 @@
 
 用法:python3 scripts/validate.py [--root 仓库路径]
 
-检查范围锁定为四类结构问题;内容质量由 experiments/README.md 的"结论验收规则"约束,不在此检查:
+检查范围锁定为五类结构问题;内容质量由 experiments/README.md 的"结论验收规则"约束,不在此检查:
 
 1. 编号唯一:H / E / EVD / I / D / R 各自无重复编号。
 2. 交叉引用存在:H 引用的 Exxx 目录存在;experiments/index.csv 与 E 目录一一对应;
@@ -15,6 +15,9 @@
    review.md 的评审判定、audit.md 的审计判定。
 4. 模板横幅残留:正式的 Hxxx 文件与实验目录文档中不得残留"模板文件:"等横幅标记
    (复制模板后必须删除横幅)。
+5. 敏感文件不入库:git 跟踪列表中不得出现 servers.private.yaml、*.pem、*.key
+   (.gitignore 只防未跟踪文件,防不了 force-add 与改名)。
+另:执行过的实验缺 ledger.md 记 WARN(台账是断点恢复与失败尝试留档的依据)。
 
 无法运行本脚本时的等价手工核对清单:
   a. ls hypotheses/ experiments/,确认 H/E 编号无重复;
@@ -26,7 +29,8 @@
      approved / approved-with-changes / waived;
   g. 确认 status 为 analyzed/archived 的实验与 evidence_index 中出现过的实验
      有 audit.md,且审计判定为 approved / approved-with-changes / waived;
-  h. grep -l '模板文件:' hypotheses/H*_*.md experiments/E*/ 应无输出(横幅残留)。
+  h. grep -l '模板文件:' hypotheses/H*_*.md experiments/E*/ 应无输出(横幅残留);
+  i. git ls-files | grep -E '\\.(pem|key)$|servers\\.private\\.yaml' 应无输出(敏感文件)。
 
 跳过:examples/、E000/H000 模板、含 xxx 的占位引用(如 Exxx、EVDxxx)。
 退出码:有 ERROR 返回 1,否则 0(WARN 不影响退出码)。
@@ -46,7 +50,7 @@ EVD_STRENGTH = {"confirmed", "strong", "weak"}
 REVIEW_VERDICT = {"approved", "approved-with-changes", "rework", "waived"}
 PASSING_VERDICT = {"approved", "approved-with-changes", "waived"}
 EXECUTED_STATUS = {"running", "done", "failed", "invalid", "analyzed", "archived"}
-INDEX_HEADER = ["exp_id", "exp_name", "hypotheses", "status", "valid", "key_result", "path"]
+INDEX_HEADER = ["exp_id", "exp_name", "hypotheses", "status", "valid", "key_result", "path", "created", "executor"]
 BANNER_MARKERS = ("模板文件:", "本目录为实验模板", "本目录为假设模板")
 
 errors: list[str] = []
@@ -241,6 +245,8 @@ def main() -> int:
                     f"(执行前须 approved / approved-with-changes / waived,见 AGENTS.md)")
         elif executed:
             err(f"{d.name}: index.csv 状态为 {st} 但缺少 review.md(执行前必须评审,见 AGENTS.md)")
+        if executed and not (d / "ledger.md").exists():
+            warn(f"{d.name}: 已执行但缺少 ledger.md(台账缺失时断点恢复与失败尝试无从追溯)")
         if st in {"analyzed", "archived"}:
             av = audit_verdicts.get(d.name[:4])
             if d.name[:4] not in audit_verdicts:
@@ -256,6 +262,18 @@ def main() -> int:
             err(f"{d.name}: index.csv 状态为 {st} 但缺少 conclusion.md")
         if not (d / "analysis.md").exists() and st in {"done", "analyzed", "archived"}:
             err(f"{d.name}: index.csv 状态为 {st} 但缺少 analysis.md")
+
+    # ---- 敏感文件不得入库 ----
+    try:
+        import subprocess
+        tracked = subprocess.run(["git", "-C", str(root), "ls-files"],
+                                 capture_output=True, text=True, timeout=10)
+        if tracked.returncode == 0:
+            for line in tracked.stdout.splitlines():
+                if line.endswith((".pem", ".key")) or line.endswith("servers.private.yaml"):
+                    err(f"敏感文件被 git 跟踪: {line}(应从版本库移除,并确认 .gitignore 覆盖)")
+    except Exception:
+        warn("无法执行 git ls-files,跳过敏感文件检查(请手工执行清单 i)")
 
     # ---- I / D / R 编号 ----
     for fname, prefix, kind in [

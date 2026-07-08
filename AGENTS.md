@@ -10,8 +10,8 @@
 
 1. 读 `memory/current_state.md`,恢复当前阶段、最佳实验、风险与下一步动作。
 2. 检查 `problem/` 四个文件是否已初始化(各文件头部横幅有判据)。未初始化 → 先执行**第 0 步 intake**:填写 `problem/intake.md` 工作单(六要素契约 + 信息缺口确认表),再据此分发填写 problem/ 四文件;不确定之处标注"待确认"并记入 current_state 风险,禁止编造外部规则。
-3. 按需检索 memory/(`insight_bank.md`、`decision_log.md`、`gotchas.md`、`evidence_index.md`)与既往 Hxxx/Exxx。**记忆是线索不是证据**:引用洞察时注明编号,但旧洞察不能替代新测量。
-4. 继续 current_state 中的下一步动作;没有未完成动作时,按根 README 的工作流推进:基线未冻结先建基线实验,再提假设、建实验。
+3. 按需检索 references/(领域判读规则与排查决策树)与 memory/(`insight_bank.md`、`decision_log.md`、`gotchas.md`、`evidence_index.md`、`component_index.md`)及既往 Hxxx/Exxx。**记忆是线索不是证据**:引用洞察时注明编号,但旧洞察不能替代新测量。
+4. 继续 current_state 中的下一步动作;接手进行中的实验时,先读该实验的 `ledger.md`,按最后一行的 next 恢复断点。没有未完成动作时,按根 README 的工作流推进:基线未冻结先建基线实验,再提假设、建实验。
 
 ---
 

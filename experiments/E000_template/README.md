@@ -30,6 +30,7 @@
 ├── README.md
 ├── plan.md
 ├── review.md
+├── ledger.md
 ├── remote_ref.yaml
 ├── run_commands.sh
 ├── code/
@@ -50,6 +51,7 @@
 | ----------------- | ------------------------- |
 | `plan.md`         | 实验计划,运行前编写                |
 | `review.md`       | 实验计划评审记录:codex 意见的逐条处理与最终判定,判定通过才可执行(见 AGENTS.md 硬门槛) |
+| `ledger.md`       | 实验台账(append-only):每个动作一行,含失败尝试与被否想法;断点恢复以此为准 |
 | `remote_ref.yaml` | 远程实验通过 `server_id` 引用 `remote/servers.private.yaml`,并记录代码位置、commit、分支、产物路径;本地实验 `server_id` 填 `local` |
 | `run_commands.sh` | 实验运行命令,含环境快照与日志落盘骨架       |
 | `code/`           | 代码补丁、改动说明、代码包             |
@@ -84,6 +86,8 @@
 14. 更新 memory/
 ```
 
+以上每完成一步,在 `ledger.md` 追加一行(time / action / result / next);会话中断后按台账最后一行恢复。
+
 ---
 
 ## 注意事项
@@ -91,6 +95,7 @@
 * 不要覆盖原始结果。
 * 不要只保存截图,尽量保存机器可读结果。
 * 不要只写结论,必须保留支持结论的证据。
-* 无效实验也要记录,避免后续重复踩坑。
+* 无效实验也要记录,避免后续重复踩坑;被否的想法与失败尝试记入 `ledger.md`。
+* `run_commands.sh` 中的环境改动步骤必须可重入:apply 前先检查或先恢复,保证中断后重跑不会失败或叠加。
 * 如果实验依赖远程服务器,必须在 `remote/servers.private.yaml` 中配置 SSH 信息,并在 `remote_ref.yaml` 中填写 `server_id`、远程路径、分支和 commit。
 * 远程实验结束后,必须将结果与日志回传到本目录的 `results/` 与 `logs/`,并把拉取命令记入日志(见 `remote/README.md` 的"结果回传")。

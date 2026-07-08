@@ -5,7 +5,7 @@
 ## experiments/index.csv 追加行
 
 ```csv
-EX-E002,batch_window_ab,EX-H001,analyzed,yes,p99 -18.8% 进入 SLA;p50 +12.4% 待评估,experiments/EX-E002_batch_window_ab
+EX-E002,batch_window_ab,EX-H001,analyzed,yes,p99 -18.8% 进入 SLA;p50 +12.4% 待评估,experiments/EX-E002_batch_window_ab,2025-11-05,agent-s1105b
 ```
 
 ## memory/evidence_index.md 追加行

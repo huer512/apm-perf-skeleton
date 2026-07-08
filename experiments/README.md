@@ -19,6 +19,7 @@ experiments/
 │   ├── README.md
 │   ├── plan.md
 │   ├── review.md
+│   ├── ledger.md
 │   ├── remote_ref.yaml
 │   ├── run_commands.sh
 │   ├── code/
@@ -66,9 +67,9 @@ E004_scheduler_fast_path
 必须使用以下格式（表头为英文机读列名，不要改动）：
 
 ```csv
-exp_id,exp_name,hypotheses,status,valid,key_result,path
-E001,baseline,none,done,yes,建立基线,experiments/E001_baseline
-E002,cache_policy_ab_test,H001;H002,running,unknown,待完成,experiments/E002_cache_policy_ab_test
+exp_id,exp_name,hypotheses,status,valid,key_result,path,created,executor
+E001,baseline,none,done,yes,建立基线,experiments/E001_baseline,2025-11-02,agent-s1102a
+E002,cache_policy_ab_test,H001;H002,running,unknown,待完成,experiments/E002_cache_policy_ab_test,2025-11-05,agent-s1105b
 ```
 
 列取值约定：
@@ -79,6 +80,8 @@ E002,cache_policy_ab_test,H001;H002,running,unknown,待完成,experiments/E002_c
 | `status` | 见下方实验状态表 |
 | `valid` | `yes` / `no` / `partial` / `invalid`，与 `conclusion.md` 的"是否有效"一致；实验未完成时填 `unknown` |
 | `key_result` | 一句话自由文本 |
+| `created` | 实验创建日期 YYYY-MM-DD |
+| `executor` | 执行者:人名或 Agent 会话标识 |
 
 ---
 
@@ -105,6 +108,7 @@ E002,cache_policy_ab_test,H001;H002,running,unknown,待完成,experiments/E002_c
 | `README.md`       | 说明该实验目录的用途和内容                  |
 | `plan.md`         | 实验计划，说明目的、变量、对照组、成功标准          |
 | `review.md`       | 实验计划评审记录（codex 意见处理与判定），执行前必须判定通过 |
+| `ledger.md`       | 实验台账（append-only）：执行流水与断点恢复依据，失败尝试同样入账 |
 | `remote_ref.yaml` | 如果实验在远程执行，通过 `server_id` 引用 `remote/servers.private.yaml`，并记录远程路径、分支、commit、环境等 |
 | `run_commands.sh` | 实验运行命令，尽量保证可复现                 |
 | `code/`           | 保存补丁、改动说明或代码包                  |

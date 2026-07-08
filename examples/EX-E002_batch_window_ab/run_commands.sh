@@ -17,7 +17,9 @@ mkdir -p "$EXP_DIR/results" "$EXP_DIR/logs"
 } > "$EXP_DIR/logs/env_snapshot_${TS}.log" 2>&1
 
 # 2. 应用配置变更并重启服务(仅 batch_window_size: 32)
+#    可重入:先恢复配置基态再打补丁,中断后重跑不会因补丁已应用而失败
 cd /home/dev/order-service
+git checkout -- config/service.yaml
 git apply "$EXP_DIR/code/patch.diff"
 systemctl --user restart order-service
 sleep 10   # 预热窗口,与基线一致

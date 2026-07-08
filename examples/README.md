@@ -17,6 +17,7 @@ examples/
 └── EX-E002_batch_window_ab/               # 填写完成的实验目录
     ├── plan.md
     ├── review.md                          # codex 评审意见的处理记录(执行前门槛)
+    ├── ledger.md                          # 实验台账:含一次会话中断恢复与一次被否想法的示范
     ├── remote_ref.yaml
     ├── run_commands.sh
     ├── results/
