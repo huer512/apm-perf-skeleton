@@ -9,7 +9,7 @@
 ## 进场顺序(每个新会话必须依次执行)
 
 1. 读 `memory/current_state.md`,恢复当前阶段、最佳实验、风险与下一步动作。
-2. 检查 `problem/` 四个文件是否已初始化(各文件头部横幅有判据)。未初始化 → 先执行**第 0 步 intake**:从原始任务描述、需求材料中抽取填写 problem/ 四文件;不确定之处标注"待确认"并记入 current_state 风险,禁止编造外部规则。
+2. 检查 `problem/` 四个文件是否已初始化(各文件头部横幅有判据)。未初始化 → 先执行**第 0 步 intake**:填写 `problem/intake.md` 工作单(六要素契约 + 信息缺口确认表),再据此分发填写 problem/ 四文件;不确定之处标注"待确认"并记入 current_state 风险,禁止编造外部规则。
 3. 按需检索 memory/(`insight_bank.md`、`decision_log.md`、`gotchas.md`、`evidence_index.md`)与既往 Hxxx/Exxx。**记忆是线索不是证据**:引用洞察时注明编号,但旧洞察不能替代新测量。
 4. 继续 current_state 中的下一步动作;没有未完成动作时,按根 README 的工作流推进:基线未冻结先建基线实验,再提假设、建实验。
 
@@ -20,7 +20,7 @@
 1. 回写本轮涉及的 Hxxx:状态、关联实验、支持/反驳证据、后续动作(联动规则见 `hypotheses/README.md`)。
 2. 更新 `experiments/index.csv`(status、valid、key_result)。
 3. conclusion.md 已完成的实验:先做结论审计(`scripts/codex_audit.sh <实验目录>` → 意见整理进 audit.md,判定通过),再在 `memory/evidence_index.md` 登记 EVD(登记规则见 `experiments/README.md`)。
-4. 必要时更新 `memory/insight_bank.md`、`memory/decision_log.md`、`memory/gotchas.md`。
+4. 必要时更新 `memory/insight_bank.md`、`memory/decision_log.md`、`memory/gotchas.md`;实验触碰的组件登记到 `memory/component_index.md`。
 5. 更新 `memory/current_state.md`(阶段、最佳实验、风险、下一步动作)。
 6. 运行 `python3 scripts/validate.py` 并清零报错;无法运行脚本时,按脚本文件头部的手工核对清单逐项检查。
 7. git 提交:每个实验收尾至少一次提交,message 格式建议 `Exxx: 一句话结论 (Hxxx)`,memory/ 与 index.csv 变更随同提交;收尾后 `git status` 中**禁止**残留未跟踪的研究文档(md/csv)。

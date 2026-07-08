@@ -32,7 +32,8 @@ memory/
 ├── insight_bank.md
 ├── evidence_index.md
 ├── decision_log.md
-└── gotchas.md
+├── gotchas.md
+└── component_index.md
 ```
 
 ---
@@ -48,6 +49,7 @@ memory/
 | `evidence_index.md` | 证据索引，记录哪些实验支持或反驳哪些结论    |
 | `decision_log.md`   | 重大决策记录，包括采用、放弃、回滚某路线的原因 |
 | `gotchas.md`        | 已知坑：症状、适用范围、规避动作，实验前必读  |
+| `component_index.md` | 组件反向索引：目标系统组件/配置项 → 触碰过它的 Exxx/EVDxxx |
 
 
 ---
@@ -147,9 +149,9 @@ yes / no / pending
 ```md
 # 证据索引
 
-| evd_id | exp_id | hypothesis | relation | strength | key_result | location | command |
-|---|---|---|---|---|---|---|---|
-| EVD001 | E001 | none | supports | confirmed | 建立基线 p99=118ms | experiments/E001_baseline/results/ | bash run_commands.sh |
+| evd_id | exp_id | hypothesis | relation | strength | key_result | location | command | limits |
+|---|---|---|---|---|---|---|---|---|
+| EVD001 | E001 | none | supports | confirmed | 建立基线 p99=118ms | experiments/E001_baseline/results/ | bash run_commands.sh | 仅覆盖固定负载,低谷段未测 |
 ```
 
 列取值约定：
@@ -158,6 +160,7 @@ yes / no / pending
 - `relation`：`supports` / `refutes`（反驳性证据同样必须登记，H 文件的"反驳证据"字段以此为数据来源）
 - `strength`：`confirmed`（重复测量且超噪声阈值）/ `strong`（单来源但测量完整）/ `weak`（间接证据或接近噪声）
 - `command`：产生该证据的命令（provenance），保证可复核
+- `limits`：该证据**不能证明**什么——引用它的洞察不得越过此边界；无则填 `—`
 
 ---
 

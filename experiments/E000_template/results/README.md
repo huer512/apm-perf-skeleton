@@ -36,6 +36,8 @@ comparison.md
 
 不要直接覆盖原始结果。
 
+多级产物(raw → parsed → comparison)之间只增列不删行,保证每一级都能反向核对上一级。
+
 ---
 
 ## 指标记录建议
@@ -65,6 +67,13 @@ Exxx
 
 ## 当前实验
 Exxx
+
+## 公平性自检
+- same_hardware: yes/no
+- same_input_data: yes/no
+- same_measurement_path: yes/no(同一测量工具、统计口径、预热策略)
+- 对照组配置说明:(对照组是否获得同等调优机会;拿调优后的实验组对比默认配置的对照组,必须在此声明并在结论适用范围中限定)
+- notes:(任何 no 都必须解释,并相应限定结论适用范围)
 
 ## 完整指标对比
 

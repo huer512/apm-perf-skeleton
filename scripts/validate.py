@@ -3,7 +3,7 @@
 
 用法:python3 scripts/validate.py [--root 仓库路径]
 
-检查范围锁定为三类结构问题;内容质量由 experiments/README.md 的"结论验收规则"约束,不在此检查:
+检查范围锁定为四类结构问题;内容质量由 experiments/README.md 的"结论验收规则"约束,不在此检查:
 
 1. 编号唯一:H / E / EVD / I / D / R 各自无重复编号。
 2. 交叉引用存在:H 引用的 Exxx 目录存在;experiments/index.csv 与 E 目录一一对应;
@@ -13,6 +13,8 @@
    audit.md(结论审计门,见 AGENTS.md)。
 3. 枚举取值合法:H 状态、index.csv 的 status/valid、evidence_index 的 relation/strength、
    review.md 的评审判定、audit.md 的审计判定。
+4. 模板横幅残留:正式的 Hxxx 文件与实验目录文档中不得残留"模板文件:"等横幅标记
+   (复制模板后必须删除横幅)。
 
 无法运行本脚本时的等价手工核对清单:
   a. ls hypotheses/ experiments/,确认 H/E 编号无重复;
@@ -23,7 +25,8 @@
   f. 确认 status 非 planned 的实验目录有 review.md,且评审判定为
      approved / approved-with-changes / waived;
   g. 确认 status 为 analyzed/archived 的实验与 evidence_index 中出现过的实验
-     有 audit.md,且审计判定为 approved / approved-with-changes / waived。
+     有 audit.md,且审计判定为 approved / approved-with-changes / waived;
+  h. grep -l '模板文件:' hypotheses/H*_*.md experiments/E*/ 应无输出(横幅残留)。
 
 跳过:examples/、E000/H000 模板、含 xxx 的占位引用(如 Exxx、EVDxxx)。
 退出码:有 ERROR 返回 1,否则 0(WARN 不影响退出码)。
@@ -44,6 +47,7 @@ REVIEW_VERDICT = {"approved", "approved-with-changes", "rework", "waived"}
 PASSING_VERDICT = {"approved", "approved-with-changes", "waived"}
 EXECUTED_STATUS = {"running", "done", "failed", "invalid", "analyzed", "archived"}
 INDEX_HEADER = ["exp_id", "exp_name", "hypotheses", "status", "valid", "key_result", "path"]
+BANNER_MARKERS = ("模板文件:", "本目录为实验模板", "本目录为假设模板")
 
 errors: list[str] = []
 warnings: list[str] = []
@@ -105,6 +109,14 @@ def main() -> int:
     for d in e_dirs:
         if not (d / "plan.md").exists():
             err(f"实验目录缺少 plan.md: {d.relative_to(root)}")
+        for name in ("README.md", "plan.md", "analysis.md", "conclusion.md", "review.md", "audit.md"):
+            f = d / name
+            if f.exists():
+                t = f.read_text(encoding="utf-8")
+                for m in BANNER_MARKERS:
+                    if m in t:
+                        err(f"{f.relative_to(root)}: 残留模板横幅标记({m}),复制模板后应删除横幅")
+                        break
 
     # 结论审计判定(供 EVD 登记与完成态检查使用)
     audit_verdicts: dict[str, str] = {}
@@ -165,6 +177,10 @@ def main() -> int:
                 err(f"{rel}: 引用的证据 {evd_ref} 未在 evidence_index 登记")
         if status == "rejected" and not re.search(r"\bEVD\d{3}\b", text):
             err(f"{rel}: 状态为 rejected 但未引用任何反驳 EVD(见 AGENTS.md 硬门槛)")
+        for m in BANNER_MARKERS:
+            if m in text:
+                err(f"{rel}: 残留模板横幅标记({m}),复制模板后应删除横幅")
+                break
 
     # ---- index.csv ----
     index_file = root / "experiments" / "index.csv"

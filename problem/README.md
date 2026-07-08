@@ -13,6 +13,7 @@
 ```text
 problem/
 ├── README.md
+├── intake.md
 ├── technical-specification.md
 ├── scoring-and-sla.md
 ├── allowed-and-forbidden.md
@@ -25,6 +26,7 @@ problem/
 
 | 文件                           | 作用                    |
 | ---------------------------- | --------------------- |
+| `intake.md`                  | 第 0 步任务接收工作单:六要素契约 + 信息缺口确认表,先于四文件填写 |
 | `technical-specification.md` | 原始任务说明、技术背景、目标系统、运行环境 |
 | `scoring-and-sla.md`         | 评分规则、性能指标、达标条件、失败条件   |
 | `allowed-and-forbidden.md`   | 允许做的优化、禁止做的修改、合规边界    |
