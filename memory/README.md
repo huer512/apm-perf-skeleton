@@ -44,7 +44,8 @@ memory/
 | 文件                  | 作用                      |
 | ------------------- | ----------------------- |
 | `global_context.md` | 项目长期背景、目标系统、核心指标、优化边界   |
-| `current_state.md`  | 当前阶段、当前最佳实验、当前风险、下一步计划  |
+| `current_state.md`  | 当前阶段、状态机字段、当前最佳实验、风险、下一步 |
+| `direction_codex_raw.md` | `scripts/codex_directions.sh` 原始产出(direction_gen 强制调 codex 时) |
 | `insight_bank.md`   | 已沉淀的跨实验洞察               |
 | `evidence_index.md` | 证据索引，记录哪些实验支持或反驳哪些结论    |
 | `decision_log.md`   | 重大决策记录，包括采用、放弃、回滚某路线的原因 |
@@ -86,27 +87,31 @@ memory/
 ```md
 # 当前状态
 
+## 工作流状态机
+- phase: diagnose
+- active_exp: none
+- last_diag_exp: E116
+- queue: [H015, H014]
+
+(phase 枚举与转移见 AGENTS.md;四字段为机读调度依据,必须保持单值/可解析。)
+
 ## 当前阶段
-问题理解 / baseline 建立 / 瓶颈定位 / 优化验证 / 合并验证 / 最终整理
+(叙述性补充,可与 phase 对照,不替代状态机字段)
 
 ## 当前最佳实验
 Exxx
 
 ## 当前关注假设
 - Hxxx
-- Hxxx
 
 ## 当前主要风险
 - 风险 1
-- 风险 2
 
 ## 最近完成
 - 事项 1
-- 事项 2
 
 ## 下一步动作
 - 动作 1
-- 动作 2
 ```
 
 ---
@@ -151,7 +156,7 @@ yes / no / pending
 
 | evd_id | exp_id | hypothesis | relation | strength | key_result | location | command | limits |
 |---|---|---|---|---|---|---|---|---|
-| EVD001 | E001 | none | supports | confirmed | 建立基线 p99=118ms | experiments/E001_baseline/results/ | bash run_commands.sh | 仅覆盖固定负载,低谷段未测 |
+| EVD001 | E001 | none | supports | confirmed | 建立基线 p99=118ms | experiments/E001_baseline/results/ | see run_commands.md step 3 | 仅覆盖固定负载,低谷段未测 |
 ```
 
 列取值约定：
@@ -161,6 +166,7 @@ yes / no / pending
 - `strength`：`confirmed`（重复测量且超噪声阈值）/ `strong`（单来源但测量完整）/ `weak`（间接证据或接近噪声）
 - `command`：产生该证据的命令（provenance），保证可复核
 - `limits`：该证据**不能证明**什么——引用它的洞察不得越过此边界；无则填 `—`
+- **a800 与真实榜**：同一 `exp_id` 只占用一条 EVD；两口径写入同一行的 `key_result`/`location`/`limits`，勿为真实榜另开 EVD 编号
 
 ---
 

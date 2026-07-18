@@ -3,7 +3,7 @@
 
 用法:python3 scripts/validate.py [--root 仓库路径]
 
-检查范围锁定为五类结构问题;内容质量由 experiments/README.md 的"结论验收规则"约束,不在此检查:
+检查范围锁定为结构问题;内容质量由 experiments/README.md 的"结论验收规则"约束,不在此检查:
 
 1. 编号唯一:H / E / EVD / I / D / R 各自无重复编号。
 2. 交叉引用存在:H 引用的 Exxx 目录存在;experiments/index.csv 与 E 目录一一对应;
@@ -12,12 +12,14 @@
    已分析的实验(status 为 analyzed/archived)与登记过 EVD 的实验必须有判定通过的
    audit.md(结论审计门,见 AGENTS.md)。
 3. 枚举取值合法:H 状态、index.csv 的 status/valid、evidence_index 的 relation/strength、
-   review.md 的评审判定、audit.md 的审计判定。
+   review.md 的评审判定、audit.md 的审计判定与 rework_class。
 4. 模板横幅残留:正式的 Hxxx 文件与实验目录文档中不得残留"模板文件:"等横幅标记
    (复制模板后必须删除横幅)。
 5. 敏感文件不入库:git 跟踪列表中不得出现 servers.private.yaml、*.pem、*.key
    (.gitignore 只防未跟踪文件,防不了 force-add 与改名)。
-另:执行过的实验缺 ledger.md 记 WARN(台账是断点恢复与失败尝试留档的依据)。
+6. 执行方式:新契约要求 run_commands.md;存在 run_commands.sh 记 WARN(遗留);
+   已执行实验缺 run_commands.md 记 WARN(迁移债)。
+另:执行过的实验缺 ledger.md 记 WARN;current_state 缺状态机字段记 WARN。
 
 无法运行本脚本时的等价手工核对清单:
   a. ls hypotheses/ experiments/,确认 H/E 编号无重复;
@@ -30,7 +32,8 @@
   g. 确认 status 为 analyzed/archived 的实验与 evidence_index 中出现过的实验
      有 audit.md,且审计判定为 approved / approved-with-changes / waived;
   h. grep -l '模板文件:' hypotheses/H*_*.md experiments/E*/ 应无输出(横幅残留);
-  i. git ls-files | grep -E '\\.(pem|key)$|servers\\.private\\.yaml' 应无输出(敏感文件)。
+  i. git ls-files | grep -E '\\.(pem|key)$|servers\\.private\\.yaml' 应无输出(敏感文件);
+  j. 新实验应有 run_commands.md 且无 run_commands.sh;audit.md 含 rework_class 单值。
 
 跳过:examples/、E000/H000 模板、含 xxx 的占位引用(如 Exxx、EVDxxx)。
 退出码:有 ERROR 返回 1,否则 0(WARN 不影响退出码)。
@@ -49,7 +52,25 @@ EVD_RELATION = {"supports", "refutes"}
 EVD_STRENGTH = {"confirmed", "strong", "weak"}
 REVIEW_VERDICT = {"approved", "approved-with-changes", "rework", "waived"}
 PASSING_VERDICT = {"approved", "approved-with-changes", "waived"}
+REWORK_CLASS = {"none", "docs", "remeasure", "recode"}
 EXECUTED_STATUS = {"running", "done", "failed", "invalid", "analyzed", "archived"}
+WORKFLOW_PHASES = {
+    "intake",
+    "baseline_setup",
+    "baseline_run",
+    "baseline_freeze",
+    "diagnose",
+    "direction_gen",
+    "plan_next",
+    "review_plan",
+    "execute",
+    "analyze",
+    "audit_conclusion",
+    "register_evd",
+    "decide_next",
+    "report",
+    "blocked",
+}
 INDEX_HEADER = ["exp_id", "exp_name", "hypotheses", "status", "valid", "key_result", "path", "created", "executor"]
 BANNER_MARKERS = ("模板文件:", "本目录为实验模板", "本目录为假设模板")
 
@@ -127,10 +148,27 @@ def main() -> int:
     for d in e_dirs:
         af = d / "audit.md"
         if af.exists():
-            v = section_value(af.read_text(encoding="utf-8"), "审计判定")
+            text = af.read_text(encoding="utf-8")
+            v = section_value(text, "审计判定")
             audit_verdicts[d.name[:4]] = v
             if v and v not in REVIEW_VERDICT:
                 err(f"{af.relative_to(root)}: 审计判定取值非法: {v!r}(合法: {sorted(REVIEW_VERDICT)})")
+            rc = section_value(text, "rework_class")
+            if rc and rc not in REWORK_CLASS:
+                err(f"{af.relative_to(root)}: rework_class 取值非法: {rc!r}(合法: {sorted(REWORK_CLASS)})")
+            elif v in PASSING_VERDICT and rc and rc != "none":
+                err(f"{af.relative_to(root)}: 审计判定为 {v} 时 rework_class 必须为 none,当前为 {rc!r}")
+            elif v == "rework" and rc == "none":
+                err(f"{af.relative_to(root)}: 审计判定为 rework 时 rework_class 不得为 none")
+            elif v and not rc:
+                warn(f"{d.name}: audit.md 缺少 rework_class(新契约要求;见 AGENTS.md)")
+        sh = d / "run_commands.sh"
+        md = d / "run_commands.md"
+        if sh.exists():
+            warn(f"{d.name}: 存在已弃用的 run_commands.sh(应改用 run_commands.md 逐条执行)")
+        if not md.exists() and not sh.exists():
+            # 未执行的 planned 实验允许暂时都没有;已执行在后方按 status 再 warn
+            pass
 
     # ---- evidence_index ----
     evd_ids: list[str] = []
@@ -247,6 +285,8 @@ def main() -> int:
             err(f"{d.name}: index.csv 状态为 {st} 但缺少 review.md(执行前必须评审,见 AGENTS.md)")
         if executed and not (d / "ledger.md").exists():
             warn(f"{d.name}: 已执行但缺少 ledger.md(台账缺失时断点恢复与失败尝试无从追溯)")
+        if executed and not (d / "run_commands.md").exists():
+            warn(f"{d.name}: 已执行但缺少 run_commands.md(新契约要求逐条记录;见 AGENTS.md)")
         if st in {"analyzed", "archived"}:
             av = audit_verdicts.get(d.name[:4])
             if d.name[:4] not in audit_verdicts:
@@ -285,6 +325,41 @@ def main() -> int:
         if f.exists():
             ids = re.findall(rf"^#{{2,3}}\s+({prefix})\b", f.read_text(encoding="utf-8"), re.M)
             check_duplicates(ids, kind, fname)
+
+    # ---- current_state 状态机字段 ----
+    cs = root / "memory" / "current_state.md"
+    if cs.exists():
+        cs_text = cs.read_text(encoding="utf-8")
+        if "## 工作流状态机" not in cs_text:
+            warn("memory/current_state.md: 缺少「工作流状态机」节(见 AGENTS.md / memory/README.md)")
+        else:
+            phase_m = re.search(r"(?m)^\s*-\s*phase:\s*(\S+)", cs_text)
+            if not phase_m:
+                warn("memory/current_state.md: 工作流状态机缺少 phase 字段")
+            elif phase_m.group(1) not in WORKFLOW_PHASES:
+                err(f"memory/current_state.md: phase 取值非法: {phase_m.group(1)!r}"
+                    f"(合法: {sorted(WORKFLOW_PHASES)})")
+            for key in ("active_exp", "last_diag_exp", "queue"):
+                if not re.search(rf"(?m)^\s*-\s*{key}:\s*\S", cs_text):
+                    warn(f"memory/current_state.md: 工作流状态机缺少 {key} 字段")
+    else:
+        warn("memory/current_state.md 不存在")
+
+    # ---- agents/ 角色文档存在性 ----
+    agents_dir = root / "agents"
+    for name in (
+        "README.md",
+        "scheduler.md",
+        "intake.md",
+        "baseline.md",
+        "profiler.md",
+        "planner.md",
+        "remote_runner.md",
+        "analyst.md",
+        "audit_clerk.md",
+    ):
+        if not (agents_dir / name).exists():
+            err(f"缺少角色文档: agents/{name}")
 
     # ---- 输出 ----
     for w in warnings:

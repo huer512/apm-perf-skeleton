@@ -15,6 +15,9 @@ tmp/
 servers.private.yaml
 remote/servers.private.yaml
 
+# GPU 租约锁(单机协议,见 AGENTS.md;不入库)
+gpu.lock
+
 # 大文件:模型权重、数据集、构建产物等不入库(按需增删)。
 # 注意:研究文档(Hxxx、plan/analysis/conclusion、memory/ 等 md 文件)必须入库,
 # 不要在本文件中添加任何忽略 *.md 的规则。

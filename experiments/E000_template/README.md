@@ -32,7 +32,7 @@
 ├── review.md
 ├── ledger.md
 ├── remote_ref.yaml
-├── run_commands.sh
+├── run_commands.md
 ├── code/
 ├── results/
 ├── logs/
@@ -53,7 +53,7 @@
 | `review.md`       | 实验计划评审记录:codex 意见的逐条处理与最终判定,判定通过才可执行(见 AGENTS.md 硬门槛) |
 | `ledger.md`       | 实验台账(append-only):每个动作一行,含失败尝试与被否想法;断点恢复以此为准 |
 | `remote_ref.yaml` | 远程实验通过 `server_id` 引用 `remote/servers.private.yaml`,并记录代码位置、commit、分支、产物路径;本地实验 `server_id` 填 `local` |
-| `run_commands.sh` | 实验运行命令,含环境快照与日志落盘骨架       |
+| `run_commands.md` | 逐条执行记录(唯一执行/复现权威);禁止一键脚本 |
 | `code/`           | 代码补丁、改动说明、代码包             |
 | `results/`        | 原始结果、解析结果、指标对比            |
 | `logs/`           | 服务日志、压测日志、构建日志、错误日志       |
@@ -69,24 +69,18 @@
 
 ```text
 1. 创建实验目录
-2. 编写 plan.md
+2. 编写 plan.md(优化类必须引用 current_state.last_diag_exp)
 3. 填写 remote_ref.yaml
-4. 编写或复制 run_commands.sh
-5. 评审:运行 scripts/codex_review.sh <实验目录>,把意见整理进 review.md,
-   adopted 意见回写 plan.md,判定 approved / approved-with-changes 后才可继续
-6. 执行实验
-7. 保存 code/
-8. 保存 results/
-9. 保存 logs/
-10. 编写 analysis.md
-11. 编写 conclusion.md
-12. 审计:运行 scripts/codex_audit.sh <实验目录>,把意见整理进 audit.md
-    (合规性/有效性/复现性),判定通过后才可登记 EVD 与回写假设状态
-13. 更新 experiments/index.csv
-14. 更新 memory/
+4. 评审:scripts/codex_review.sh → review.md(判定通过才可执行)
+5. 本地 code/ 就绪后,由 remote_runner 逐条执行并追加 run_commands.md
+6. 保存 results/ 与 logs/(远程必须回传)
+7. 编写 analysis.md → conclusion.md
+8. 审计:scripts/codex_audit.sh → audit.md(含 rework_class)
+9. 按 AGENTS.md EVD 强制表登记或禁止登记证据,回写假设
+10. 更新 experiments/index.csv 与 memory/current_state.md 状态机字段
 ```
 
-以上每完成一步,在 `ledger.md` 追加一行(time / action / result / next);会话中断后按台账最后一行恢复。
+以上每完成一步,在 `ledger.md` 追加一行(time / action / result / next);会话中断后按台账最后一行恢复。phase 转移以 `AGENTS.md` 状态机为准。
 
 ---
 
@@ -96,6 +90,7 @@
 * 不要只保存截图,尽量保存机器可读结果。
 * 不要只写结论,必须保留支持结论的证据。
 * 无效实验也要记录,避免后续重复踩坑;被否的想法与失败尝试记入 `ledger.md`。
-* `run_commands.sh` 中的环境改动步骤必须可重入:apply 前先检查或先恢复,保证中断后重跑不会失败或叠加。
+* **禁止**编写一键跑完全程脚本;复现 = 逐条执行 `run_commands.md`。
 * 如果实验依赖远程服务器,必须在 `remote/servers.private.yaml` 中配置 SSH 信息,并在 `remote_ref.yaml` 中填写 `server_id`、远程路径、分支和 commit。
-* 远程实验结束后,必须将结果与日志回传到本目录的 `results/` 与 `logs/`,并把拉取命令记入日志(见 `remote/README.md` 的"结果回传")。
+* 远程实验结束后,必须将结果与日志回传到本目录的 `results/` 与 `logs/`,并把拉取命令记入 `run_commands.md`(见 `remote/README.md` 的"结果回传")。
+* 部署隔离:单文件用 `名_Exxx.py`;大仓用与实验目录同名的 git worktree。

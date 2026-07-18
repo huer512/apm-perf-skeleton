@@ -110,7 +110,7 @@ rsync -av <user>@<host>:<remote_log_path>/ experiments/Exxx/logs/
 回传要求：
 
 1. 回传后核对文件清单与大小，确认完整。
-2. 拉取命令与时间记入 `logs/`（可写在 `run_commands.sh` 的回传段，输出 tee 到 logs/）。
+2. 拉取命令与时间记入 `run_commands.md` 的对应 step，并保留 `logs/` 中的原始输出。
 3. `remote_ref.yaml` 中 `artifact_paths` 列出的每个远程路径，都应能在本地 `results/` 或 `logs/` 找到对应产物，或在 analysis.md 中写明未回传原因（如超大文件只留校验值与远程路径）。
 
 ---

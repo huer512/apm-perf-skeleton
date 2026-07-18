@@ -63,7 +63,7 @@ emit_if_exists() {  # $1=标题 $2=路径
   emit_if_exists "指标摘要" "$EXP_DIR/results/metrics_parsed.md"
   emit_if_exists "代码改动 diff" "$EXP_DIR/code/patch.diff"
   emit_if_exists "改动文件清单" "$EXP_DIR/code/changed_files.md"
-  emit_if_exists "运行命令" "$EXP_DIR/run_commands.sh"
+  emit_if_exists "运行命令" "$EXP_DIR/run_commands.md"
   if [ -n "$H_FILE" ]; then
     echo
     echo "=== 关联假设 ${H_ID} ==="

@@ -19,7 +19,7 @@ examples/
     ├── review.md                          # codex 评审意见的处理记录(执行前门槛)
     ├── ledger.md                          # 实验台账:含一次会话中断恢复与一次被否想法的示范
     ├── remote_ref.yaml
-    ├── run_commands.sh
+    ├── run_commands.sh            # 历史示例;新实验改用 run_commands.md(见 AGENTS.md)
     ├── results/
     │   ├── metrics_parsed.md
     │   └── comparison.md

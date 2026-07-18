@@ -21,7 +21,8 @@
 
 ```text
 .
-├── AGENTS.md      # Agent 执行契约：进场顺序、收尾清单、硬门槛、红线（唯一权威来源）
+├── AGENTS.md      # Agent 执行契约：状态机、EVD 强制表、红线（唯一权威来源）
+├── agents/        # 角色契约与固定任务书模板
 ├── problem/       # 问题定义、约束、评分规则、提交要求
 ├── hypotheses/    # 优化假设、瓶颈猜想、待验证方向
 ├── experiments/   # 每次实验的完整记录，包括方案、代码、结果、日志、分析
@@ -30,7 +31,7 @@
 ├── references/    # 领域先验知识库：判读规则与排查决策树（由使用者按领域填写）
 ├── report/        # 最终方案与最终报告（终止条件白名单见其 README）
 ├── examples/      # 填写完成的全链路示例（格式与粒度示范，不占正式编号）
-└── scripts/       # 轻量校验工具（stdlib-only；无脚本时流程可全手工执行）
+└── scripts/       # 校验与 codex 门禁脚本（stdlib-only / codex CLI）
 ```
 
 ---
@@ -65,30 +66,20 @@ cp remote/servers.example.yaml remote/servers.private.yaml
 
 ## 推荐工作流
 
-一次完整优化流程建议如下：
+全自动推进以 [`AGENTS.md`](AGENTS.md) 状态机为准；主调度按 [`agents/`](agents/README.md) 调用角色。摘要：
 
 ```text
-阅读 problem/（未初始化 → 先执行 AGENTS.md 的第 0 步 intake）
+intake → baseline_setup → baseline_run → baseline_freeze
         ↓
-建立并冻结基线实验（plan.md 填写"基线契约"）
+diagnose（profiler，更新 last_diag_exp）
         ↓
-提出 hypotheses/Hxxx（先完成查重与先验检索）
+direction_gen（有方向则入队；自认无方向则必须 scripts/codex_directions.sh）
         ↓
-创建 experiments/Exxx 并完成 plan.md
+plan_next → review_plan → execute（remote_runner + run_commands.md 逐条 + gpu.lock）
         ↓
-codex 评审实验计划（scripts/codex_review.sh，意见整理进 review.md，判定通过才可执行）
+analyze → audit_conclusion → register_evd（必须登或禁止登，无裁量）
         ↓
-执行实验并保存代码、结果和日志（远程实验回传产物）
-        ↓
-编写 analysis.md 和 conclusion.md
-        ↓
-codex 审计结论（合规性/有效性/复现性，scripts/codex_audit.sh → audit.md 判定通过）
-        ↓
-登记 EVD 到 memory/evidence_index.md，并回写 Hxxx 状态（联动规则见 hypotheses/README.md）
-        ↓
-更新 experiments/index.csv 与 memory/current_state.md（完整收尾清单见 AGENTS.md）
-        ↓
-决定继续优化、修订假设，或命中终止条件后进入 report/ 最终报告
+decide_next → diagnose | plan_next | direction_gen | report（终止白名单）
 ```
 
 ---
